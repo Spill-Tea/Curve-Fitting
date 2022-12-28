@@ -83,6 +83,14 @@ BoltzmanSigmoidal = Expression(
     expression=baseline + (peak - baseline) / (1 + sm.exp((pEC50 - x) / HillSlope))
 )
 
+LogisticGrowth = Expression(
+    expression=baseline * peak / ((peak - baseline) * sm.exp(-K * x) + baseline)
+)
+
+GompertzGrowth = Expression(
+    expression=peak * (baseline / peak) ** sm.exp(-K * x)
+)
+
 OneSiteTotalBinding = Expression(
     expression=Bmax * x / (Kd + x) + NS * x + baseline
 )
