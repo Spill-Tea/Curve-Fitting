@@ -86,7 +86,7 @@ class Goodness:
 
     @property
     def parameters(self) -> np.ndarray:
-        """Retrieve the parameter Names from a Given Function."""
+        """Parameter names of a Given Function."""
         return np.asarray(getfullargspec(self.function).args[1:])
 
     @property
