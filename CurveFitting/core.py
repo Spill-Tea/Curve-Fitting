@@ -49,7 +49,9 @@ class Equation:
         self.equation = sm.lambdify(self.expression.args, self.expression.expression, "numpy")
         self.equation.__doc__ = sm.latex(self.expression)
 
-        self.derivative_expression = sm.Derivative(self.expression.expression, *self.expression.variables, evaluate=True)
+        self.derivative_expression = sm.Derivative(
+            self.expression.expression, *self.expression.variables, evaluate=True
+        )
         self.derivative = sm.lambdify(
             self.expression.args,
             self.derivative_expression,
@@ -57,7 +59,9 @@ class Equation:
         )
         self.derivative.__doc__ = sm.latex(self.derivative_expression)
 
-        self.second_derivative_expression = sm.Derivative(self.derivative_expression, *self.expression.variables, evaluate=True)
+        self.second_derivative_expression = sm.Derivative(
+            self.derivative_expression, *self.expression.variables, evaluate=True
+        )
         self.second_derivative = sm.lambdify(
             self.expression.args,
             self.second_derivative_expression,
