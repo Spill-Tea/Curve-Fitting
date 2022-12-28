@@ -32,6 +32,7 @@ from plotly import express as px
 from plotly import graph_objects as go
 
 from . import utils
+from .core import Equation
 from .goodness_of_fit import Goodness
 
 
@@ -39,17 +40,36 @@ class Plotting:
     def __init__(self, good: Goodness):
         self.good = good
 
-    def qqplot(self, color: Optional[str] = None):
+    def qqplot(self, color: Optional[str] = None) -> go.Figure:
         return qqplot(self.good, color)
 
-    def fit(self, color: Optional[str] = None):
-        return plot_fit(self.good, color)
+    def fit(self, color: Optional[str] = None, name: str = "f(x)") -> go.Figure:
+        return plot_fit(self.good, color, name)
 
-    def residuals(self, color: Optional[str] = None):
+    def residuals(self, color: Optional[str] = None) -> go.Figure:
         return plot_residuals(self.good, color)
 
-    def predicted(self, color: Optional[str] = None):
+    def predicted(self, color: Optional[str] = None) -> go.Figure:
         return plot_predicted(self.good, color)
+
+    def fit_all(self, equation: Equation) -> go.Figure:
+        colors = px.colors.qualitative.Prism
+        figure = self.fit(colors[0], "f(x)")
+        setup = zip(
+            [equation.derivative, equation.second_derivative, equation.integral],
+            ["f'(x)", "f''(x)", "integral"]
+        )
+        previous = self.good.function
+
+        for n, (eq, name) in enumerate(setup, 1):
+            self.good.function = eq
+            _trace_fit(figure, self.good, colors[n], name)
+            _plot_error(figure, self.good, colors[n], name)
+
+        # Reset
+        self.good.function = previous
+
+        return figure
 
 
 def qqplot(good: Goodness, color: str = "#579677"):
@@ -84,7 +104,50 @@ def qqplot(good: Goodness, color: str = "#579677"):
     return figure
 
 
-def plot_fit(good: Goodness, color: str = px.colors.qualitative.Prism[1]):
+def _trace_fit(figure: go.Figure, good: Goodness, color: str, name: str):
+    # For presentation purposes (due to the nature of splining), use more x values
+    x = np.linspace(
+        np.nanmin(good.xdata),
+        np.nanmax(good.xdata),
+        1_000
+    )
+
+    figure.add_trace(go.Scatter(
+        name=f"{name} - Fit",
+        mode="lines",
+        x=x,
+        y=good.function(x, *good.best_fit),
+        line=dict(
+            color=color,
+            shape="spline",
+            dash="dot"
+        ),
+    ))
+
+
+def _plot_error(figure: go.Figure, good: Goodness, color: str, name: str):
+    x = np.linspace(good.xdata.min(), good.xdata.max(), 1_000)
+    error_95ci = utils.ci_x(good.std, 0.95)
+
+    figure.add_trace(go.Scatter(
+        name=f"{name} - Error",
+        mode="lines",
+        x=np.concatenate((x, x[::-1])),
+        y=np.concatenate((
+            good.function(x, *(good.best_fit + error_95ci)),
+            good.function(x[::-1], *(good.best_fit - error_95ci)),
+        )),
+        line=dict(
+            color=color,
+            dash="dot",
+            width=0.5,
+        ),
+        fill="toself",
+        opacity=0.5,
+    ))
+
+
+def plot_fit(good: Goodness, color: str = px.colors.qualitative.Prism[1], name: str = "f(x)"):
     figure = go.Figure()
 
     figure.add_trace(go.Scatter(
@@ -104,36 +167,8 @@ def plot_fit(good: Goodness, color: str = px.colors.qualitative.Prism[1]):
         ),
     ))
 
-    figure.add_trace(go.Scatter(
-        name="Fit",
-        mode="lines",
-        x=good.xdata,
-        y=good.expected,
-        line=dict(
-            color=color,
-            shape="spline",
-            dash="dot"
-        ),
-    ))
-
-    x = np.linspace(good.xdata.min(), good.xdata.max(), 1_000)
-    error_95ci = utils.ci_x(good.std, 0.95)
-    figure.add_trace(go.Scatter(
-        name="Error",
-        mode="lines",
-        x=np.concatenate((x, x[::-1])),
-        y=np.concatenate((
-            good.function(x, *(good.best_fit + error_95ci)),
-            good.function(x[::-1], *(good.best_fit - error_95ci)),
-        )),
-        line=dict(
-            color=color,
-            dash="dot",
-            width=0.5,
-        ),
-        fill="toself",
-        opacity=0.5,
-    ))
+    _trace_fit(figure, good, color, name)
+    _plot_error(figure, good, color, name)
 
     figure.update_layout(
         xaxis=dict(title="X"),
@@ -165,7 +200,8 @@ def plot_residuals(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
             width=1.75,
         ),
         marker=dict(
-            color=color
+            color=color,
+            size=4.5,
         ),
     ))
 
@@ -178,7 +214,7 @@ def plot_residuals(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
             color=color,
             shape="spline",
             dash="dot",
-            width=0.5
+            width=1.25,
         ),
     ))
 
@@ -213,7 +249,8 @@ def plot_predicted(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
             width=1.75,
         ),
         marker=dict(
-            color=color
+            color=color,
+            size=4.0,
         ),
     ))
 
