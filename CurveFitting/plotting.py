@@ -28,21 +28,11 @@ import numpy as np
 
 from typing import Optional
 
-from scipy.stats import norm
 from plotly import express as px
 from plotly import graph_objects as go
 
+from . import utils
 from .goodness_of_fit import Goodness
-
-
-def line(x, m, b):
-    return x * m + b
-
-
-def linalg(x: np.ndarray, y: np.ndarray):
-    j = np.vstack((x, np.ones(x.shape))).T
-    params = np.linalg.lstsq(j, y, None)[0]
-    return params
 
 
 class Plotting:
@@ -127,7 +117,7 @@ def plot_fit(good: Goodness, color: str = px.colors.qualitative.Prism[1]):
     ))
 
     x = np.linspace(good.xdata.min(), good.xdata.max(), 1_000)
-    error_95ci = norm.ppf(0.975) * good.std
+    error_95ci = utils.ci_x(good.std, 0.95)
     figure.add_trace(go.Scatter(
         name="Error",
         mode="lines",
@@ -183,7 +173,7 @@ def plot_residuals(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
         name="fit",
         mode="lines",
         x=x,
-        y=line(x, *linalg(x, y)),
+        y=utils.line(x, *utils.linalg(x, y)),
         line=dict(
             color=color,
             shape="spline",
@@ -231,7 +221,7 @@ def plot_predicted(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
         name="fit",
         mode="lines",
         x=x,
-        y=line(x, *linalg(x, y)),
+        y=utils.line(x, *utils.linalg(x, y)),
         line=dict(
             color=color,
             shape="spline",
