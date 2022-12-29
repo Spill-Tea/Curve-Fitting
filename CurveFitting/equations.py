@@ -55,14 +55,11 @@ class Expression:
                  expression: Union[sm.core.add.Add, sm.core.mul.Mul, sm.core.mod.Mod],
                  ):
         self.expression = expression
+        self._symbols = [*self.expression.free_symbols]
 
     @property
     def args(self):
         return self.variables + self.constants
-
-    @property
-    def symbols(self) -> List[sm.Symbol]:
-        return [*self.expression.free_symbols]
 
     @property
     def names(self) -> List[str]:
@@ -70,11 +67,11 @@ class Expression:
 
     @property
     def variables(self) -> List[sm.Symbol]:
-        return [i for i in self.symbols if not i._assumptions.get("constant", False)]
+        return sorted([i for i in self._symbols if not i._assumptions.get("constant", False)])
 
     @property
     def constants(self) -> List[sm.Symbol]:
-        return [i for i in self.symbols if i._assumptions.get("constant", False)]
+        return sorted([i for i in self._symbols if i._assumptions.get("constant", False)])
 
 
 VariableSlopeDoseResponse = Expression(
