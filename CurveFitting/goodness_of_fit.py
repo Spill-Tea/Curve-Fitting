@@ -84,6 +84,10 @@ class Goodness:
             self.best_fit = np.array([np.nan] * size)
             self.covariance = np.array([np.nan] * size * size).reshape((size, size))
 
+    def expect(self, x: np.ndarray) -> np.ndarray:
+        """Returns the Values Expected at x for a given best fit parameters."""
+        return self.function(x, *self.best_fit)
+
     @property
     def parameters(self) -> np.ndarray:
         """Parameter names of a Given Function."""
@@ -97,7 +101,7 @@ class Goodness:
     @property
     def expected(self) -> np.ndarray:
         """Expected Value given best fit parameters."""
-        return self.function(self.xdata, *self.best_fit)
+        return self.expect(self.xdata)
 
     @property
     def residuals(self) -> np.ndarray:

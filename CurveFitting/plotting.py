@@ -116,7 +116,7 @@ def _trace_fit(figure: go.Figure, good: Goodness, color: str, name: str):
         name=f"{name} - Fit",
         mode="lines",
         x=x,
-        y=good.function(x, *good.best_fit),
+        y=good.expect(x),
         line=dict(
             color=color,
             shape="spline",
