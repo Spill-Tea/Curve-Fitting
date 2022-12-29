@@ -33,6 +33,8 @@ x = sm.Symbol("x", real=True)
 a = sm.Symbol("a", constant=True, real=True)
 b = sm.Symbol("b", constant=True, real=True)
 c = sm.Symbol("c", constant=True, real=True)
+mu = sm.Symbol("c", constant=True, real=True)
+sigma = sm.Symbol("c", constant=True, real=True)
 baseline = sm.Symbol("baseline", constant=True, real=True)
 peak = sm.Symbol("peak", constant=True, real=True)
 pEC50 = sm.Symbol("pEC50", constant=True, real=True)
@@ -113,4 +115,12 @@ DissociationKinetics = Expression(
 
 Parabola = Expression(
     expression=a * x ** 2 + b * x + c
+)
+
+Poisson = Expression(
+    expression=(mu ** x) * sm.exp(-mu) / sm.gamma(x + 1)
+)
+
+Gaussian = Expression(
+    expression=sm.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * sm.sqrt(2 * sm.pi))
 )
