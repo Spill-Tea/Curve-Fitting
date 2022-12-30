@@ -67,11 +67,14 @@ class Expression:
 
     @property
     def variables(self) -> List[sm.Symbol]:
-        return sorted([i for i in self._symbols if not i._assumptions.get("constant", False)])
+        return [i for i in self._symbols if not i._assumptions.get("constant", False)]
 
     @property
     def constants(self) -> List[sm.Symbol]:
-        return sorted([i for i in self._symbols if i._assumptions.get("constant", False)])
+        z = [i for i in self._symbols if i._assumptions.get("constant", False)]
+        names = [j.name for j in z]
+        idx = sorted(range(len(names)), key=names.__getitem__)
+        return [z[t] for t in idx]
 
 
 VariableSlopeDoseResponse = Expression(
