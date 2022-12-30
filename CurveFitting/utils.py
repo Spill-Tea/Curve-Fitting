@@ -26,6 +26,7 @@
 # Python Dependencies
 import numpy as np
 
+from typing import Optional
 from scipy.stats import norm
 
 
@@ -40,7 +41,9 @@ def ci_x(std, x: float):
     return norm.ppf(population) * std
 
 
-def linalg(x: np.ndarray, y: np.ndarray):
-    j = np.vstack((x, np.ones(x.shape))).T
+def linalg(x: np.ndarray, y: np.ndarray, z: Optional[np.ndarray] = None):
+    if z is None:
+        z = np.ones(x.shape)
+    j = np.vstack((x, z)).T
     params = np.linalg.lstsq(j, y, None)[0]
     return params
