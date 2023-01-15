@@ -49,7 +49,8 @@ def weights(a: np.ndarray) -> np.ndarray:
     return np.power(omega / omega.max(), 2)
 
 
-def linalg(x: np.ndarray, y: np.ndarray, z: Optional[np.ndarray] = None):
+def regression(x: np.ndarray, y: np.ndarray, z: Optional[np.ndarray] = None):
+    """Linear Regression weighted by z, defaulting to equal weights."""
     if z is None:
         z = np.ones(x.shape)
     j = np.vstack((x, z)).T

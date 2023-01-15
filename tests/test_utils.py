@@ -33,5 +33,5 @@ def test_line(x, m, b, expected):
     (np.arange(3, 7), np.linspace(0.5, 2.0, 4, True), np.array([0.5, -1])),
 ])
 def test_linalg(x, y, expected):
-    result = utils.linalg(x, y)
+    result = utils.regression(x, y)
     assert np.alltrue(np.isclose(result, expected))
