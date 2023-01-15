@@ -26,7 +26,7 @@
 # Python Dependencies
 import numpy as np
 
-from typing import Optional
+from typing import List, Optional
 
 from plotly import express as px
 from plotly import graph_objects as go
@@ -43,7 +43,7 @@ class Plotting:
     def qqplot(self, color: Optional[str] = None) -> go.Figure:
         return qqplot(self.good, color)
 
-    def fit(self, color: Optional[str] = None, name: str = "f(x)") -> go.Figure:
+    def fit(self, color: Optional[str] = None, name: str = "f(p)") -> go.Figure:
         return plot_fit(self.good, color, name)
 
     def residuals(self, color: Optional[str] = None) -> go.Figure:
@@ -52,12 +52,14 @@ class Plotting:
     def predicted(self, color: Optional[str] = None) -> go.Figure:
         return plot_predicted(self.good, color)
 
-    def fit_all(self, equation: Equation) -> go.Figure:
-        colors = px.colors.qualitative.Prism
-        figure = self.fit(colors[0], "f(x)")
+    def fit_all(self, equation: Equation, colors: Optional[List[str]] = None) -> go.Figure:
+        if colors is None:
+            colors = px.colors.qualitative.Prism[:]
+        assert len(colors) >= 4, "Must provide at least four colors."
+        figure = self.fit(colors[0], "f(p)")
         setup = zip(
             [equation.derivative, equation.second_derivative, equation.integral],
-            ["f'(x)", "f''(x)", "integral"]
+            [u"&#8706;f(p)", u"&#8706;&#8706;f(p)", u"&#x222b; f(p)"]
         )
         previous = self.good.function
 
@@ -87,8 +89,21 @@ def qqplot(good: Goodness, color: str = "#579677"):
         mode="markers",
         marker=dict(
             color=color,
-            size=3.5,
+            size=4.5,
         )
+    ))
+
+    figure.add_trace(go.Scatter(
+        name="fit",
+        mode="lines",
+        x=observed_rsd,
+        y=utils.line(observed_rsd, *utils.linalg(observed_rsd, predicted_rsd)),
+        line=dict(
+            color=color,
+            shape="spline",
+            dash="dot",
+            width=1.25,
+        ),
     ))
 
     figure.update_layout(
@@ -105,7 +120,7 @@ def qqplot(good: Goodness, color: str = "#579677"):
 
 
 def _trace_fit(figure: go.Figure, good: Goodness, color: str, name: str):
-    # For presentation purposes (due to the nature of splining), use more x values
+    # For presentation purposes (due to the nature of splining), use more p values
     x = np.linspace(
         np.nanmin(good.xdata),
         np.nanmax(good.xdata),
@@ -126,7 +141,11 @@ def _trace_fit(figure: go.Figure, good: Goodness, color: str, name: str):
 
 
 def _plot_error(figure: go.Figure, good: Goodness, color: str, name: str):
-    x = np.linspace(good.xdata.min(), good.xdata.max(), 1_000)
+    x = np.linspace(
+        np.nanmin(good.xdata),
+        np.nanmax(good.xdata),
+        1_000
+    )
     error_95ci = utils.ci_x(good.std, 0.95)
 
     figure.add_trace(go.Scatter(
@@ -147,7 +166,7 @@ def _plot_error(figure: go.Figure, good: Goodness, color: str, name: str):
     ))
 
 
-def plot_fit(good: Goodness, color: str = px.colors.qualitative.Prism[1], name: str = "f(x)"):
+def plot_fit(good: Goodness, color: str = "rgb(29, 105, 150)", name: str = "f(p)"):
     figure = go.Figure()
 
     figure.add_trace(go.Scatter(
@@ -182,7 +201,7 @@ def plot_fit(good: Goodness, color: str = px.colors.qualitative.Prism[1], name: 
     return figure
 
 
-def plot_residuals(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
+def plot_residuals(good: Goodness, color: str = "rgb(56, 166, 165)"):
     """Plots the Residuals of a Curve Fit Best Parameters."""
     figure = go.Figure()
     x, y = good.xdata, good.residuals
@@ -205,11 +224,16 @@ def plot_residuals(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
         ),
     ))
 
+    if good.yerror is not None:
+        z = utils.weights(good.yerror)
+    else:
+        z = None
+
     figure.add_trace(go.Scatter(
         name="fit",
         mode="lines",
         x=x,
-        y=utils.line(x, *utils.linalg(x, y)),
+        y=utils.line(x, *utils.linalg(x, y, z)),
         line=dict(
             color=color,
             shape="spline",
@@ -230,7 +254,7 @@ def plot_residuals(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
     return figure
 
 
-def plot_predicted(good: Goodness, color: str = px.colors.qualitative.Prism[2]):
+def plot_predicted(good: Goodness, color: str = "rgb(56, 166, 165)"):
     """Plots Predicted"""
     figure = go.Figure()
 
