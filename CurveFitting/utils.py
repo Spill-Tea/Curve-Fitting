@@ -44,6 +44,7 @@ def ci_x(std, p: float):
 
 def weights(a: np.ndarray) -> np.ndarray:
     """Convert the error into a weighting paradigm"""
+    # return np.exp(- a / np.nanmax(a))
     alpha = np.nanmax(a) - a
     omega = 1 - np.exp(- alpha / np.max(alpha) - 1)
     return np.power(omega / omega.max(), 2)

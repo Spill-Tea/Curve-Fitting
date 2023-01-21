@@ -55,11 +55,11 @@ class Plotting:
     def fit_all(self, equation: Equation, colors: Optional[List[str]] = None) -> go.Figure:
         if colors is None:
             colors = px.colors.qualitative.Prism[:]
-        assert len(colors) >= 4, "Must provide at least four colors."
-        figure = self.fit(colors[0], "f(p)")
+        assert len(colors) > 3, "Must provide at least four colors."
+        figure = self.fit(colors[0], "f(x)")
         setup = zip(
             [equation.derivative, equation.second_derivative, equation.integral],
-            [u"&#8706;f(p)", u"&#8706;&#8706;f(p)", u"&#x222b; f(p)"]
+            [u"&#8706;f(x)", u"&#8706;&#8706;f(x)", u"&#x222b; f(x)"]
         )
         previous = self.good.function
 
