@@ -36,7 +36,7 @@ def line(x, m, b):
 
 
 def ci_x(std, p: float):
-    """Return the Confidence Interval at the specified percentange, p"""
+    """Return the Confidence Interval at the specified percentage, p"""
     assert 0 <= p <= 1.0
     population = p + (1 - p) / 2
     return norm.ppf(population) * std
@@ -44,7 +44,6 @@ def ci_x(std, p: float):
 
 def weights(a: np.ndarray) -> np.ndarray:
     """Convert the error into a weighting paradigm"""
-    # return np.exp(- a / np.nanmax(a))
     alpha = np.nanmax(a) - a
     omega = 1 - np.exp(- alpha / np.max(alpha) - 1)
     return np.power(omega / omega.max(), 2)
