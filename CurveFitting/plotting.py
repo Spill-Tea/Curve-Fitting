@@ -120,7 +120,7 @@ def qqplot(good: Goodness, color: str = "#579677"):
 
 
 def _trace_fit(figure: go.Figure, good: Goodness, color: str, name: str):
-    # For presentation purposes (due to the nature of splining), use more p values
+    # For presentation purposes (due to the nature of splining), use more x values
     x = np.linspace(
         np.nanmin(good.xdata),
         np.nanmax(good.xdata),
