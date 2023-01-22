@@ -26,7 +26,7 @@
 # Python Dependencies
 import sympy as sm
 
-from .equations import Expression
+from .expressions import Expression
 
 
 class Equation:
