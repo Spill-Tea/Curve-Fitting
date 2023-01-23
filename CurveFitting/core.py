@@ -47,7 +47,7 @@ class Equation:
     def __init__(self, expression: Expression):
         self.expression = expression
         self.equation = sm.lambdify(self.expression.args, self.expression.expression, "numpy")
-        self.equation.__doc__ = sm.latex(self.expression)
+        self.equation.__doc__ = sm.latex(self.expression.expression)
 
         self.derivative_expression = sm.Derivative(
             self.expression.expression, *self.expression.variables, evaluate=True
