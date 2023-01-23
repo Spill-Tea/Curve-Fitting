@@ -37,6 +37,7 @@ from .goodness_of_fit import Goodness
 
 
 class Plotting:
+    """Adaptor Plotting Class Companion to Goodness of Fit Class."""
     def __init__(self, good: Goodness):
         self.good = good
 

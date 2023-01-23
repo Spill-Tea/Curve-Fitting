@@ -152,19 +152,3 @@ class Goodness:
     def rsq_adj(self) -> float:
         """Adjusted R-Squared Value"""
         return (1 - self.rsq) * (self.dof - 1.0) / (self.k - 1.0)
-
-    def report(self) -> dict:
-        """Prepares a Report of Goodness of Fit Metrics."""
-
-        return {
-            "Variables": self.parameters,
-            "Fit": self.best_fit,
-            "StDev": self.std,
-            "SSR": self.ssr,
-            "SyX": self.syx,
-            "SSE": self.sse,
-            "RMSE": self.rmse,
-            "RSQ": self.rsq,
-            "RSQ (Adjusted)": self.rsq_adj,
-            "Equation": self.function.__name__,
-        }
