@@ -62,7 +62,7 @@ class Goodness:
         self.ydata = ydata
         self.yerror = yerror
 
-        assert xdata.shape == ydata.shape, f"X and Y Data Must Be the Same Shape."
+        assert xdata.shape == ydata.shape, "X and Y Data Must Be the Same Shape."
 
         self.best_fit = best_fit
         self.covariance = covariance
