@@ -4,33 +4,20 @@
 """
 import pytest
 import numpy as np
-
-from CurveFitting.goodness_of_fit import Goodness
-from CurveFitting.utils import line
+from ._setup import good_line
 
 
-@pytest.mark.parametrize("x, y, f, expected", [
-    (np.arange(5), np.arange(5) * 2 - 1, line, np.array([2., -1])),
+@pytest.mark.parametrize("good, k", [
+    (good_line, 2),
 ])
-def test_dofk(x, y, f, expected):
-    good = Goodness(
-        function=f,
-        xdata=x,
-        ydata=y,
-    )
-    assert good.dof == len(y) == len(x)
-    assert good.k == len(expected)
+def test_dofk(good, k):
+    assert good.dof == len(good.ydata) == len(good.xdata)
+    assert good.k == k
 
 
-@pytest.mark.parametrize("x, y, f, expected", [
-    (np.arange(5), np.arange(5) * 2 - 1, line, np.array([2., -1])),
+@pytest.mark.parametrize("good, expected", [
+    (good_line, np.array([2., -1])),
 ])
-def test_fit(x, y, f, expected):
-    good = Goodness(
-        function=f,
-        xdata=x,
-        ydata=y,
-    )
+def test_fit(good, expected):
     good.fit()
-
     assert np.alltrue(np.isclose(good.best_fit, expected))
