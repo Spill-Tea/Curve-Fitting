@@ -128,10 +128,6 @@ Parabola = Expression(
     expression=a * x ** 2 + b * x + c
 )
 
-Poisson = Expression(
-    expression=(mu ** x) * sm.exp(-mu) / sm.gamma(x + 1)
-)
-
 Gaussian = Expression(
     expression=sm.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * sm.sqrt(2 * sm.pi))
 )
