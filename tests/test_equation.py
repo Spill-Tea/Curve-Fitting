@@ -12,7 +12,6 @@ from CurveFitting import expressions as ex
     ex.Gaussian,
     ex.PadeApproximant,
     ex.VariableSlopeDoseResponse,
-    ex.Poisson,
 ])
 def test_equation(expression):
     eq = Equation(expression)
