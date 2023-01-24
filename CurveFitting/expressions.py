@@ -131,3 +131,7 @@ Parabola = Expression(
 Gaussian = Expression(
     expression=sm.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * sm.sqrt(2 * sm.pi))
 )
+
+Poisson = Expression(
+    expression=(mu ** x) * sm.exp(-mu) / sm.gamma(x + 1)
+)
