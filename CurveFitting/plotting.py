@@ -37,33 +37,39 @@ from .goodness_of_fit import Goodness
 
 
 class Plotting:
+    """Adaptor Plotting Class Companion to Goodness of Fit Class."""
     def __init__(self, good: Goodness):
         self.good = good
 
     def qqplot(self, color: Optional[str] = None) -> go.Figure:
+        """Constructs a Quantile-Quantile (QQ) Plot."""
         return qqplot(self.good, color)
 
-    def fit(self, color: Optional[str] = None, name: str = "f(p)") -> go.Figure:
+    def fit(self, color: Optional[str] = None, name: str = "f(x)") -> go.Figure:
+        """Plots Best Curve Fit and Underlying Data with error."""
         return plot_fit(self.good, color, name)
 
-    def residuals(self, color: Optional[str] = None) -> go.Figure:
-        return plot_residuals(self.good, color)
+    def residuals(self, color: Optional[str] = None, weighted: bool = True) -> go.Figure:
+        """Plots the Residuals of the Best Fit Parameters."""
+        return plot_residuals(self.good, color, weighted)
 
     def predicted(self, color: Optional[str] = None) -> go.Figure:
+        """Compares Predicted Curve Fit to Observed Data."""
         return plot_predicted(self.good, color)
 
     def fit_all(self, equation: Equation, colors: Optional[List[str]] = None) -> go.Figure:
+        """Plot the Best Fit Parameters for the Original Data and given integral and derivatives."""
         if colors is None:
             colors = px.colors.qualitative.Prism[:]
         assert len(colors) > 3, "Must provide at least four colors."
         figure = self.fit(colors[0], "f(x)")
-        setup = zip(
+        _setup = zip(
             [equation.derivative, equation.second_derivative, equation.integral],
             [u"&#8706;f(x)", u"&#8706;&#8706;f(x)", u"&#x222b; f(x)"]
         )
         previous = self.good.function
 
-        for n, (eq, name) in enumerate(setup, 1):
+        for n, (eq, name) in enumerate(_setup, 1):
             self.good.function = eq
             _trace_fit(figure, self.good, colors[n], name)
             _plot_error(figure, self.good, colors[n], name)
@@ -166,7 +172,7 @@ def _plot_error(figure: go.Figure, good: Goodness, color: str, name: str):
     ))
 
 
-def plot_fit(good: Goodness, color: str = "rgb(29, 105, 150)", name: str = "f(p)"):
+def plot_fit(good: Goodness, color: str = "rgb(29, 105, 150)", name: str = "f(x)"):
     figure = go.Figure()
 
     figure.add_trace(go.Scatter(
@@ -201,7 +207,7 @@ def plot_fit(good: Goodness, color: str = "rgb(29, 105, 150)", name: str = "f(p)
     return figure
 
 
-def plot_residuals(good: Goodness, color: str = "rgb(56, 166, 165)"):
+def plot_residuals(good: Goodness, color: str = "rgb(56, 166, 165)", weighted: bool = True):
     """Plots the Residuals of a Curve Fit Best Parameters."""
     figure = go.Figure()
     x, y = good.xdata, good.residuals
@@ -224,10 +230,9 @@ def plot_residuals(good: Goodness, color: str = "rgb(56, 166, 165)"):
         ),
     ))
 
-    if good.yerror is not None:
+    z = None
+    if weighted and good.yerror is not None:
         z = utils.weights(good.yerror)
-    else:
-        z = None
 
     figure.add_trace(go.Scatter(
         name="fit",

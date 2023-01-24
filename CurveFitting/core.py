@@ -25,12 +25,20 @@
 """
 # Python Dependencies
 import sympy as sm
+from typing import List, Optional
 
-from .equations import Expression
+from .expressions import Expression
 
 
 class Equation:
     """Class to Handle Conversion to Derivative and Integral.
+
+    Args:
+        expression (Expression): Expression Class Interface
+        backend (List[str]): Backend Modules used to evaluate the expression into a function.
+
+    References:
+        1. https://docs.sympy.org/latest/modules/utilities/lambdify.html
 
     """
     __slots__ = (
@@ -44,18 +52,18 @@ class Equation:
         "integral",
     )
 
-    def __init__(self, expression: Expression):
+    def __init__(self, expression: Expression, backend: Optional[List[str]] = None):
         self.expression = expression
-        self.equation = sm.lambdify(self.expression.args, self.expression.expression, "numpy")
-        self.equation.__doc__ = sm.latex(self.expression)
+        self.equation = sm.lambdify(expression.args, expression.expression, backend)
+        self.equation.__doc__ = sm.latex(expression.expression)
 
         self.derivative_expression = sm.Derivative(
-            self.expression.expression, *self.expression.variables, evaluate=True
+            expression.expression, *expression.variables, evaluate=True
         )
         self.derivative = sm.lambdify(
-            self.expression.args,
+            expression.args,
             self.derivative_expression,
-            "numpy"
+            backend
         )
         self.derivative.__doc__ = sm.latex(self.derivative_expression)
 
@@ -63,16 +71,16 @@ class Equation:
             self.derivative_expression, *self.expression.variables, evaluate=True
         )
         self.second_derivative = sm.lambdify(
-            self.expression.args,
+            expression.args,
             self.second_derivative_expression,
-            "numpy"
+            backend
         )
         self.second_derivative.__doc__ = sm.latex(self.second_derivative_expression)
 
-        self.integral_expression = sm.integrate(self.expression.expression, self.expression.variables)
+        self.integral_expression = sm.integrate(expression.expression, expression.variables)
         self.integral = sm.lambdify(
-            self.expression.args,
+            expression.args,
             self.integral_expression,
-            "numpy"
+            backend
         )
         self.integral.__doc__ = sm.latex(self.integral_expression)

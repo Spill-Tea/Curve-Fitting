@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 """
-    CurveFitting/equations.py
+    CurveFitting/expressions.py
 
 """
 # Python Dependencies
@@ -28,29 +28,18 @@ import sympy as sm
 from typing import List, Union
 
 
-# Symbols
-x = sm.Symbol("x", real=True)
-a = sm.Symbol("a", constant=True, real=True)
-b = sm.Symbol("b", constant=True, real=True)
-c = sm.Symbol("c", constant=True, real=True)
-mu = sm.Symbol("c", constant=True, real=True)
-sigma = sm.Symbol("c", constant=True, real=True)
-baseline = sm.Symbol("baseline", constant=True, real=True)
-peak = sm.Symbol("peak", constant=True, real=True)
-pEC50 = sm.Symbol("pEC50", constant=True, real=True)
-HillSlope = sm.Symbol("HillSlope", constant=True, real=True)
-Bmax = sm.Symbol("Bmax", constant=True, real=True)
-Kd = sm.Symbol("Kd", constant=True, real=True)
-NS = sm.Symbol("NS", constant=True, real=True)
-A0 = sm.Symbol("A0", constant=True, real=True)
-A1 = sm.Symbol("A1", constant=True, real=True)
-B1 = sm.Symbol("B1", constant=True, real=True)
-K = sm.Symbol("K", constant=True, real=True)
-Y0 = sm.Symbol("Y0", constant=True, real=True)
-
-
-# Equations
 class Expression:
+    """Simple Interface Class for working with Sympy Expressions.
+
+    Args:
+        expression (sm.core.add.Add | sm.core.mul.Mul | sm.core.mod.Mod): sympy equation
+
+    Notes:
+        Be certain that sympy expressions use symbols correctly defining constants.
+
+    """
+    __slots__ = ("expression", "_symbols")
+
     def __init__(self,
                  expression: Union[sm.core.add.Add, sm.core.mul.Mul, sm.core.mod.Mod],
                  ):
@@ -77,6 +66,28 @@ class Expression:
         return [z[t] for t in idx]
 
 
+# Symbols
+x = sm.Symbol("x", real=True)
+a = sm.Symbol("a", constant=True, real=True)
+b = sm.Symbol("b", constant=True, real=True)
+c = sm.Symbol("c", constant=True, real=True)
+mu = sm.Symbol("mu", constant=True, real=True)
+sigma = sm.Symbol("sigma", constant=True, real=True)
+baseline = sm.Symbol("baseline", constant=True, real=True)
+peak = sm.Symbol("peak", constant=True, real=True)
+pEC50 = sm.Symbol("pEC50", constant=True, real=True)
+HillSlope = sm.Symbol("HillSlope", constant=True, real=True)
+Bmax = sm.Symbol("Bmax", constant=True, real=True)
+Kd = sm.Symbol("Kd", constant=True, real=True)
+NS = sm.Symbol("NS", constant=True, real=True)
+A0 = sm.Symbol("A0", constant=True, real=True)
+A1 = sm.Symbol("A1", constant=True, real=True)
+B1 = sm.Symbol("B1", constant=True, real=True)
+K = sm.Symbol("K", constant=True, real=True)
+Y0 = sm.Symbol("Y0", constant=True, real=True)
+
+
+# Expression Definitions
 VariableSlopeDoseResponse = Expression(
     expression=baseline + (peak - baseline) / (1 + 10 ** ((pEC50 - x) * HillSlope))
 )
@@ -117,10 +128,10 @@ Parabola = Expression(
     expression=a * x ** 2 + b * x + c
 )
 
-Poisson = Expression(
-    expression=(mu ** x) * sm.exp(-mu) / sm.gamma(x + 1)
-)
-
 Gaussian = Expression(
     expression=sm.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * sm.sqrt(2 * sm.pi))
+)
+
+Poisson = Expression(
+    expression=(mu ** x) * sm.exp(-mu) / sm.gamma(x + 1)
 )
